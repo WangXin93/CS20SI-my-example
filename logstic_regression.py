@@ -26,16 +26,20 @@ Y = tf.placeholder(tf.float32, name='Y')
 # Step 3: create weight and bias, initialized to zero
 w = tf.Variable(0.0, name='weights')
 b = tf.Variable(0.0, name='bias')
+w_h = tf.Variable(0.0, name='huber_weight') # weight for huber loss
+b_h = tf.Variable(0.0, name ='huber_bias') # bias for huber loss
 
 # Step 4: build model to infer
 Y_predicted = X * w + b
+Y_predicted_h = X * w_h + b_h
 
 # Step 5: use square loss as  loss function
-#loss = tf.square(Y - Y_predicted, name='loss')
-loss = huber_loss(Y, Y_predicted)
+loss = tf.square(Y - Y_predicted, name='loss')
+loss_h = huber_loss(Y, Y_predicted_h)
 
 # Step 6: use GradientDescentOptimizer as optimizer
 optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(loss)
+optimizer_h = tf.train.GradientDescentOptimizer(learning_rate=0.001).minimize(loss_h)
 
 with tf.Session() as sess:
     # Step 7: initialize the necessary variables
@@ -51,22 +55,25 @@ with tf.Session() as sess:
     # Step 8: train the model
     for i in range(100):
         total_loss = 0
+        total_loss_h = 0
         for x, y in data:
-            _, l = sess.run([optimizer, loss], feed_dict={X:x, Y:y})
+            _, l, _, l_h = sess.run([optimizer, loss, optimizer_h, loss_h],
+				feed_dict={X:x, Y:y})
             total_loss += l
+            total_loss_h += l_h
         print('Epoch {0}: {1}'.format(i, total_loss/n_samples))
+        print('Epoch {0}: {1}'.format(i, total_loss_h/n_samples))
         
         # Step 9: output the values of w and b and draw every frame
         plt.cla()
-        np_w, np_b = sess.run([w, b]) 
+        np_w, np_b, np_w_h, np_b_h = sess.run([w, b, w_h, b_h])	
         plt.plot(np_X, np_Y, 'bo', label='Real data')
-        plt.plot(np_X, np_X*np_w+np_b, 'r-', label='prediction')
+        plt.plot(np_X, np_X*np_w+np_b, 'r-', label='Square loss')
+        plt.plot(np_X, np_X*np_w_h+np_b_h, 'g-', label='Huber loss')
         plt.legend()
-  
-        # plot the results
                
         plt.pause(0.001)
-    plt.pause(3)  
+    plt.pause(5)
     writer.close()
 
     
