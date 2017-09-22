@@ -78,14 +78,40 @@ with tf.Session() as sess:
 		# Get the prediction error images and their origin labels
 		error_images, origin_labels = X_batch[error_preds], Y_batch[error_preds]
 		error_labels = np_pred_labels[error_preds]
-		if sum(error_preds):		
+		if sum(error_preds): # if there are error images		
 			print(error_images.shape, origin_labels.shape, error_labels.shape)
 			for j in range(error_labels.shape[0]):
 				plt.imshow(error_images[j].reshape(28,28), cmap='gray')
 				plt.title("Predict: %s\n Origin: %s" %
 					(error_labels[j], np.argmax(origin_labels[j])))
+				plt.axis('off')
 				plt.show() 
+	
 	# Show accuracy for every class
+	num_list = [] # list of original number
+	result_list = [] # list of True and False
+	for i in range(n_batchs):
+		X_batch, Y_batch = mnist.test.next_batch(batch_size)
+		np_preds = sess.run(correct_preds,
+			feed_dict={X:X_batch, Y:Y_batch, keep_prob:1.0})
+		result_list.extend(list(np_preds))
+		num_list.extend(list(np.argmax(Y_batch, axis=1)))
+	print(len(num_list), len(result_list))
+	accuracy_list = []
+	num_list = np.array(num_list)
+	result_list = np.array(result_list)
+	for i in range(0,10):
+		total_n = sum(num_list == i)
+		total_right = sum(result_list[num_list==i])
+		print("for num '{}', {}/{} is right".format(i, total_right, total_n))
+		accuracy_list.append(total_right/total_n)
+	plt.bar(np.arange(10), accuracy_list)
+	plt.title("Accuracy for each class")
+	plt.ylim(0.9, 1.0)
+	plt.show()
+	
+		
+	
 	
 
 
