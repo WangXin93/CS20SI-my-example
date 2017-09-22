@@ -22,7 +22,13 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 # Hint: Look up tf.case().
 ###############################################################################
 
-# YOUR CODE
+xb = tf.random_uniform([],minval=-1, maxval=1]
+yb = tf.random_uniform([],minval=-1, maxval=1]
+zb = tf.zeros([])
+outb = tf.case({tf.less(xb, yb):lambda:tf.add(xb, yb),
+		tf.greater(xb, yb):lambda:tf.subtract(xb, yb)},
+		default=lambda:zb,
+		exclusive=True)
 
 ###############################################################################
 # 1c: Create the tensor x of the value [[0, -2, -1], [0, 1, 2]] 
@@ -31,7 +37,9 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 # Hint: Look up tf.equal().
 ###############################################################################
 
-# YOUR CODE
+xc = tf.constant([[0, -2, -1], [0, 1, 2]], name='xc')
+yc = tf.zeros_like(xc, name='yc')
+outc = tf.equal(xc, yc, name='outc')
 
 ###############################################################################
 # 1d: Create the tensor x of value 
@@ -46,7 +54,8 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 # Hint: Use tf.gather().
 ###############################################################################
 
-# YOUR CODE
+xd = tf.random_uniform([20], minval=25, maxval=35, name='xd')
+outd = tf.where(tf.greater(xd, 30), xd, name='outd')
 
 ###############################################################################
 # 1e: Create a diagnoal 2-d tensor of size 6 x 6 with the diagonal values of 1,
@@ -54,7 +63,7 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 # Hint: Use tf.range() and tf.diag().
 ###############################################################################
 
-# YOUR CODE
+oute = tf.diag(tf.range(1,7), name='oute')
 
 ###############################################################################
 # 1f: Create a random 2-d tensor of size 10 x 10 from any distribution.
@@ -62,7 +71,8 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 # Hint: Look at tf.matrix_determinant().
 ###############################################################################
 
-# YOUR CODE
+xf = tf.random_normal([10,10], name='xf')
+outf = tf.matrix_determinant(xf, name='outf')
 
 ###############################################################################
 # 1g: Create tensor x with value [5, 2, 3, 5, 10, 6, 2, 3, 4, 2, 1, 1, 0, 9].
@@ -70,7 +80,8 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 # Hint: use tf.unique(). Keep in mind that tf.unique() returns a tuple.
 ###############################################################################
 
-# YOUR CODE
+xg = tf.constant([5, 2, 3, 5, 10, 6, 2, 3, 4, 2, 1, 1, 0, 9], name='xg')
+outg, _ = tf.unique(xg, name='outg')
 
 ###############################################################################
 # 1h: Create two tensors x and y of shape 300 from any normal distribution,
@@ -82,4 +93,9 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 # Hint: see the Huber loss function in the lecture slides 3.
 ###############################################################################
 
-# YOUR CODE
+xh = tf.random_normal(300, name='xh')
+yh = tf.random_normal(300, name='yh')
+tf.cond(tf.less(tf.reduce_mean(tf.subtract(x,y)), tf.zeros([])),
+	tf.reduce_mean(tf.square(xh-yh)),
+	tf.reduce_sum(tf.abs(xh-yh)))
+	
