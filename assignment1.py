@@ -22,9 +22,9 @@ out = tf.cond(tf.greater(x, y), lambda: tf.add(x, y), lambda: tf.subtract(x, y))
 # Hint: Look up tf.case().
 ###############################################################################
 
-xb = tf.random_uniform([],minval=-1, maxval=1]
-yb = tf.random_uniform([],minval=-1, maxval=1]
-zb = tf.zeros([])
+xb = tf.random_uniform([], minval=-1, maxval=1, name='xb')
+yb = tf.random_uniform([],minval=-1, maxval=1, name='yb')
+zb = tf.zeros([],name='zb')
 outb = tf.case({tf.less(xb, yb):lambda:tf.add(xb, yb),
 		tf.greater(xb, yb):lambda:tf.subtract(xb, yb)},
 		default=lambda:zb,
@@ -55,7 +55,8 @@ outc = tf.equal(xc, yc, name='outc')
 ###############################################################################
 
 xd = tf.random_uniform([20], minval=25, maxval=35, name='xd')
-outd = tf.where(tf.greater(xd, 30), xd, name='outd')
+idxd = tf.where(tf.greater(xd, 30), name='idxd')
+outd = tf.gather(xd, idxd, name='outd')
 
 ###############################################################################
 # 1e: Create a diagnoal 2-d tensor of size 6 x 6 with the diagonal values of 1,
@@ -93,9 +94,9 @@ outg, _ = tf.unique(xg, name='outg')
 # Hint: see the Huber loss function in the lecture slides 3.
 ###############################################################################
 
-xh = tf.random_normal(300, name='xh')
-yh = tf.random_normal(300, name='yh')
-tf.cond(tf.less(tf.reduce_mean(tf.subtract(x,y)), tf.zeros([])),
-	tf.reduce_mean(tf.square(xh-yh)),
-	tf.reduce_sum(tf.abs(xh-yh)))
+xh = tf.random_normal([300], name='xh')
+yh = tf.random_normal([300], name='yh')
+outh = tf.cond(tf.less(tf.reduce_mean(xh - yh), 0),
+		lambda:tf.reduce_mean(tf.square(xh-yh)),
+		lambda:tf.reduce_sum(tf.abs(xh-yh)))
 	
