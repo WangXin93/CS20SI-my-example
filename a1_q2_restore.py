@@ -3,6 +3,7 @@ import numpy as np
 import os
 from tensorflow.examples.tutorials.mnist import input_data
 import time
+import matplotlib.pyplot as plt
 
 # Define parameters
 batch_size = 128
@@ -29,7 +30,7 @@ w_fc2 = tf.Variable(tf.truncated_normal([1, 1, 1024, 10], stddev=0.1),
 	name='w_fc2')
 b_fc2 = tf.Variable(tf.zeros([10]), name='b_fc2')
 
-# Step4: Define loss
+# Step4: Define model
 X_reshape = tf.reshape(X, [-1,28,28,1])
 h_conv1 = tf.nn.relu(tf.nn.conv2d(X_reshape, w_conv1, [1,1,1,1], padding='SAME') + b_conv1)
 h_pool1 = tf.nn.max_pool(h_conv1, ksize=[1,2,2,1], strides=[1,2,2,1], padding='SAME')
@@ -42,7 +43,9 @@ h_fc2 = tf.nn.conv2d(h_dropout1, w_fc2, [1,1,1,1], padding='VALID') + b_fc2
 
 logits = tf.squeeze(h_fc2, [1, 2])
 
-correct_preds = tf.equal(tf.argmax(logits, 1), tf.argmax(Y, 1))
+predictions = tf.argmax(logits, 1)
+
+correct_preds = tf.equal(predictions, tf.argmax(Y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_preds, tf.float32))
 
 saver = tf.train.Saver()
@@ -55,6 +58,7 @@ with tf.Session() as sess:
 	
 	n_batchs = mnist.test.num_examples//batch_size
 
+	# Test accuracy from checkpoint
 	total_accuracy = 0
 	for i in range(n_batchs):
 		X_batch, Y_batch = mnist.test.next_batch(batch_size)
@@ -62,6 +66,27 @@ with tf.Session() as sess:
 			 feed_dict={X:X_batch, Y:Y_batch, keep_prob:1.0})
 		total_accuracy += accuracy_batch
 	print("Accuracy {}".format(total_accuracy/n_batchs))
+
+	# Show the error prediction
+	for i in range(3):
+		X_batch, Y_batch = mnist.test.next_batch(batch_size)
+		# Get prediction boolean and prediction labels
+		np_preds, np_pred_labels = sess.run([correct_preds, predictions],
+			feed_dict={X:X_batch, Y:Y_batch, keep_prob:1.0})
+		# Use boolean to select false predictions
+		error_preds = [not p for p in np_preds]
+		# Get the prediction error images and their origin labels
+		error_images, origin_labels = X_batch[error_preds], Y_batch[error_preds]
+		error_labels = np_pred_labels[error_preds]
+		if sum(error_preds):		
+			print(error_images.shape, origin_labels.shape, error_labels.shape)
+			for j in range(error_labels.shape[0]):
+				plt.imshow(error_images[j].reshape(28,28), cmap='gray')
+				plt.title("Predict: %s\n Origin: %s" %
+					(error_labels[j], np.argmax(origin_labels[j])))
+				plt.show() 
+	# Show accuracy for every class
+	
 
 
 
