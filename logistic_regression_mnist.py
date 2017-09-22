@@ -14,13 +14,13 @@ from tensorflow.examples.tutorials.mnist import input_data
 import time
 
 # Define paramaters for the model
-learning_rate = 0.01
+learning_rate = 0.5
 batch_size = 128
 n_epochs = 10
 
 # Step 1: Read in data
 # using TF Learn's built in function to load MNIST data to the folder data/mnist
-mnist = input_data.read_data_sets('/data/mnist', one_hot=True) 
+mnist = input_data.read_data_sets('/tmp/data/mnist', one_hot=True) 
 
 # Step 2: create placeholders for features and labels
 # each image in the MNIST data is of shape 28*28 = 784
@@ -34,15 +34,15 @@ Y = tf.placeholder(tf.int32, [batch_size, 10], name='Y_placeholder')
 # weights and biases are initialized to 0
 # shape of w depends on the dimension of X and Y so that Y = X * w + b
 # shape of b depends on Y
-w = tf.Variable(tf.random_normal(shape=[784, 10], stddev=0.01), name='weights')
-b = tf.Variable(tf.zeros([1, 10]), name="bias")
+w1 = tf.Variable(tf.random_normal(shape=[784, 10], stddev=0.01), name='weights1')
+b1 = tf.Variable(tf.zeros([1, 10]), name="bias1")
 
 # Step 4: build model
 # the model that returns the logits.
 # this logits will be later passed through softmax layer
 # to get the probability distribution of possible label of the image
 # DO NOT DO SOFTMAX HERE
-logits = tf.matmul(X, w) + b 
+logits = tf.matmul(X, w1) + b1
 
 # Step 5: define loss function
 # use cross entropy loss of the real labels with the softmax of logits
@@ -54,10 +54,11 @@ loss = tf.reduce_mean(entropy) # computes the mean over all the examples in the 
 
 # Step 6: define training op
 # using gradient descent to minimize loss
-train_op = tf.train.AdamOptimizer(learning_rate).minimize(loss)
-
+train_op = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
 
 with tf.Session() as sess:
+
+        #writer = tf.summary.FileWriter('/tmp/graphs/lg_mnist', sess.graph)
 	start_time = time.time()
 	sess.run(tf.global_variables_initializer())	
 	n_batches = int(mnist.train.num_examples/batch_size)
@@ -89,3 +90,4 @@ with tf.Session() as sess:
 		total_correct_preds += accuracy_batch	
 	
 	print('Accuracy {0}'.format(total_correct_preds/mnist.test.num_examples))
+        #writer.close()
