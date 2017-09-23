@@ -109,9 +109,14 @@ with tf.Session() as sess:
 	plt.title("Accuracy for each class")
 	plt.ylim(0.9, 1.0)
 	plt.show()
-	
-		
-	
+	print(result_list[:10])
+	# Show stacked histgram plot
+	true_list = num_list[result_list]
+	false_list = num_list[result_list==False]	
+	plt.hist([true_list, false_list], bins=10, stacked=True)
+	plt.ylim(800,1200)
+	plt.show()
+
 	
 
 
